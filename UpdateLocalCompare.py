@@ -7,14 +7,17 @@ from watchdog.events import FileSystemEvent, FileSystemEventHandler
 import sys
 import keyboard
 import contextlib
+import tkinter as tk 
 
+window = None
+message_label = None
 
 # Calls update_local_compare() func if master is modified
 class FileChangeHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if event.src_path.endswith('MasterCompare.xlsx'):
             update_local_compare()
-            print("Master changed; updated local.") # for debugging
+            #print("Master changed; updated local.") 
 
 
 def update_local_compare():
@@ -43,16 +46,26 @@ def update_local_compare():
     local_compare_workbook.save('LocalCompare.xlsx')
 
 
-# EXTRA: Write code to display this on screen, instead of printing on terminal
 def handle_interrupt(frame):
-    print("Interrupt signal received. Script is ending...")
+    
+    # Display in GUI
+    global window
+    message_label.config(text="Interrupt signal received. Script is ending...")
+    window.quit()
+    # print("Interrupt signal received. Script is ending...")
     sys.exit(0)
     
 
 # Handle interruption and script runtime
 if __name__ == "__main__":
     
+    # For script exit message
+    window = tk.Tk()
+    message_label = tk.Label(window, text="")
+    message_label.pack()
+    
     custom_interrupt_key = "ctrl + 0"  # custom interruption key combo
+    window.mainloop() # Start tkinter main loop
     keyboard.add_hotkey(custom_interrupt_key, handle_interrupt)
 
     event_handler = FileChangeHandler()
