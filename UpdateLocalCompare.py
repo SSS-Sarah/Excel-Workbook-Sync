@@ -4,15 +4,17 @@
 import openpyxl
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
-import signal
 import sys
 import keyboard
+import contextlib
 
-# Triggers an update in local compare if master is modified
+
+# Calls update_local_compare() func if master is modified
 class FileChangeHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if event.src_path.endswith('MasterCompare.xlsx'):
             update_local_compare()
+            print("Master changed; updated local.") # for debugging
 
 
 def update_local_compare():
@@ -42,13 +44,12 @@ def update_local_compare():
 
 
 # EXTRA: Write code to display this on screen, instead of printing on terminal
-def handle_interrupt(signum, frame):
+def handle_interrupt(frame):
     print("Interrupt signal received. Script is ending...")
     sys.exit(0)
     
 
-# Fix the rest tomorrow
-import contextlib
+# Handle interruption and script runtime
 if __name__ == "__main__":
     
     custom_interrupt_key = "ctrl + 0"  # custom interruption key combo
@@ -59,6 +60,7 @@ if __name__ == "__main__":
     observer.schedule(event_handler, path='.', recursive=False)
     observer.start()
 
+    # Keeps running script until interrupted.
     with contextlib.suppress(SystemExit):
         while True:
             pass
